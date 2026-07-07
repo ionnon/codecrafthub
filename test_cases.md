@@ -1,199 +1,138 @@
-# CodeCraftHub API Test Cases
+# CodeCraftHub Node.js API Test Cases
 
-Base URL:
+Run the server first:
 
-```bash
-http://127.0.0.1:5000
-```
+npm start
+
+The API should run at:
+
+http://localhost:5000
 
 ## 1. Health Check
 
-```bash
-curl -i http://127.0.0.1:5000/
-```
+curl -i http://localhost:5000/
 
-Expected status: `200 OK`
+Expected:
+
+HTTP/1.1 200 OK
 
 ## 2. Create a Course
 
-```bash
-curl -i -X POST http://127.0.0.1:5000/api/courses \
+curl -i -X POST http://localhost:5000/api/courses \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Python Basics",
-    "description": "Learn Python fundamentals including variables, loops, and functions",
+    "description": "Learn Python fundamentals",
     "target_date": "2026-12-31",
     "status": "Not Started"
   }'
-```
 
-Expected status: `201 CREATED`
+Expected:
 
-Expected response includes:
-
-```json
-{
-  "id": "auto-generated number",
-  "name": "Python Basics",
-  "description": "Learn Python fundamentals including variables, loops, and functions",
-  "target_date": "2026-12-31",
-  "status": "Not Started",
-  "created_at": "auto-generated timestamp"
-}
-```
+HTTP/1.1 201 Created
+Course created successfully
 
 ## 3. Get All Courses
 
-```bash
-curl -i http://127.0.0.1:5000/api/courses
-```
+curl -i http://localhost:5000/api/courses
 
-Expected status: `200 OK`
+Expected:
 
-Expected response: a JSON array of courses.
-
-## 4. Get One Course
+HTTP/1.1 200 OK
+Courses retrieved successfully
 
 ## 4. Get Course Statistics
 
-```bash
-curl -i http://127.0.0.1:5000/api/courses/stats
-```
+curl -i http://localhost:5000/api/courses/stats
 
-Expected status: `200 OK`
+Expected:
 
-Expected response includes:
-
-```json
-{
-  "total_courses": 1,
-  "by_status": {
-    "Not Started": 1,
-    "In Progress": 0,
-    "Completed": 0
-  }
-}
-```
+HTTP/1.1 200 OK
 
 ## 5. Get One Course
 
-```bash
-curl -i http://127.0.0.1:5000/api/courses/1
-```
+curl -i http://localhost:5000/api/courses/1
 
-Expected status: `200 OK`
+Expected:
 
-Expected response: one course object.
-
-Note: if the created course has a different ID, replace `1` with the ID returned by the POST request.
+HTTP/1.1 200 OK
+Course retrieved successfully
 
 ## 6. Update a Course
 
-```bash
-curl -i -X PUT http://127.0.0.1:5000/api/courses/1 \
+curl -i -X PUT http://localhost:5000/api/courses/1 \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Python Basics",
-    "description": "Learn Python and Flask API fundamentals",
+    "description": "Learn Python and Express API fundamentals",
     "target_date": "2026-12-31",
     "status": "In Progress"
   }'
-```
 
-Expected status: `200 OK`
+Expected:
 
-Expected response includes `"status": "In Progress"`.
-
-Note: if the created course has a different ID, replace `1` with the ID returned by the POST request.
+HTTP/1.1 200 OK
+Course updated successfully
 
 ## 7. Delete a Course
 
-```bash
-curl -i -X DELETE http://127.0.0.1:5000/api/courses/1
-```
+curl -i -X DELETE http://localhost:5000/api/courses/1
 
-Expected status: `204 NO CONTENT`
+Expected:
 
-Note: if the created course has a different ID, replace `1` with the ID returned by the POST request.
+HTTP/1.1 200 OK
+Course deleted successfully
 
-## 8. Error: Missing Required Fields
+## 8. Missing Fields Error
 
-```bash
-curl -i -X POST http://127.0.0.1:5000/api/courses \
+curl -i -X POST http://localhost:5000/api/courses \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Incomplete Course"
   }'
-```
 
-Expected status: `400 BAD REQUEST`
+Expected:
 
-Expected response includes:
+HTTP/1.1 400 Bad Request
+Missing field(s)
 
-```json
-{
-  "error": "Missing field(s): description, target_date, status"
-}
-```
+## 9. Invalid Status Error
 
-## 9. Error: Invalid Status
-
-```bash
-curl -i -X POST http://127.0.0.1:5000/api/courses \
+curl -i -X POST http://localhost:5000/api/courses \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Test Course",
+    "name": "Bad Status Course",
     "description": "Testing invalid status",
     "target_date": "2026-12-31",
-    "status": "Invalid Status"
+    "status": "Started"
   }'
-```
 
-Expected status: `400 BAD REQUEST`
+Expected:
 
-Expected response includes:
+HTTP/1.1 400 Bad Request
+Invalid status
 
-```json
-{
-  "error": "Invalid status. Use one of: Not Started, In Progress, Completed"
-}
-```
+## 10. Invalid Date Format Error
 
-## 10. Error: Invalid Date Format
-
-```bash
-curl -i -X POST http://127.0.0.1:5000/api/courses \
+curl -i -X POST http://localhost:5000/api/courses \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Date Test",
-    "description": "Testing invalid date",
+    "description": "Testing invalid date format",
     "target_date": "12-31-2026",
     "status": "Not Started"
   }'
-```
 
-Expected status: `400 BAD REQUEST`
+Expected:
 
-Expected response includes:
+HTTP/1.1 400 Bad Request
+Invalid target_date
 
-```json
-{
-  "error": "Invalid target_date. Use format YYYY-MM-DD"
-}
-```
+## 11. CORS Check
 
-## 11. Error: Course Not Found
+curl -i -X OPTIONS http://localhost:5000/api/courses
 
-```bash
-curl -i http://127.0.0.1:5000/api/courses/999
-```
+Expected:
 
-Expected status: `404 NOT FOUND`
-
-Expected response includes:
-
-```json
-{
-  "error": "Course not found"
-}
-```
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: *

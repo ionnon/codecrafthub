@@ -1,5 +1,4 @@
-__pycache__/
-*.pyc
-venv/
-.venv/
+node_modules/
+option_b_flask_backup/
 .DS_Store
+.env
